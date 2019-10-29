@@ -2,7 +2,7 @@
 // @name         attendance duration
 // @description  More information and general improvements to levigos intranet attendance table!
 // @namespace    attendance
-// @version      0.2
+// @version      0.2.1
 // @author       Kevin Hertfelder
 // @match        https://intra.levigo.de/mitarbeiter/30tage.php
 // @match        https://intra.levigo.de/mitarbeiter/anwesenheit.php

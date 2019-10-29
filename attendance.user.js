@@ -2,7 +2,7 @@
 // @name         attendance duration
 // @description  More information and general improvements to levigos intranet attendance table!
 // @namespace    attendance
-// @version      0.2
+// @version      0.2.1
 // @author       Kevin Hertfelder
 // @match        https://intra.levigo.de/mitarbeiter/30tage.php
 // @match        https://intra.levigo.de/mitarbeiter/anwesenheit.php
@@ -176,14 +176,13 @@
       statistics.html("missing user information.");
       return;
     }
-    // Console log statistics.
-    statistics.html(`total time difference:\t${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min<br/>` +
-      `average time:\t\t\t${Math.trunc(average.asHours())}h ${average.minutes()}min<br/>` +
-      `workdays:\t\t\t${workingDays}<br/>` +
-      `workdays with times:\t${countDurations}<br/>` +
-      "total time is:\t\t\t" +
+    statistics.html(`<b>total time difference:</b><br/>&nbsp;&nbsp;&nbsp;${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min<br/>` +
+      `<b>average time:</b><br/>&nbsp;&nbsp;&nbsp;${Math.trunc(average.asHours())}h ${average.minutes()}min<br/>` +
+      `<b>workdays:</b><br/>&nbsp;&nbsp;&nbsp;${workingDays} days<br/>` +
+      `<b>workdays with times:</b><br/>&nbsp;&nbsp;&nbsp;${countDurations} days<br/>` +
+      "<b>total time is:</b><br/>&nbsp;&nbsp;&nbsp;" +
       `${Math.trunc(moment.duration(isDuration).asHours())}h ${moment.duration(isDuration).minutes()}min<br/>` +
-      "total time should:\t\t" +
+      "<b>total time should:</b><br/>&nbsp;&nbsp;&nbsp;" +
       `${Math.trunc(moment.duration(shouldDuration).asHours())}h ${moment.duration(shouldDuration).minutes()}min<br/>`);
   }
 
@@ -194,8 +193,9 @@
       "border": "2px solid black",
       "padding": "4px",
       "position": "absolute",
-      "top": "6em",
-      "width": "19.8em"
+      "top": "67px",
+      "width": (($("body > form > center").width() - $("body > form > center > table:nth-child(1)").width()) / 2) - 10 + "px",
+      "min-width": "146px"
     });
 
     statistics = $("<div/>").css({
@@ -208,41 +208,42 @@
     const collapseBtn = $("<a/>").attr("href", "#").css("float", "right").
       append($("<img/>").attr("src", cogSrc).css("width", "20px"));
 
-    const workerIdField = $("<input/>").attr("type", "text").attr("id", "userId").css("width", "100px").val(workerId);
+    const workerIdField = $("<input/>").attr("type", "text").attr("id", "userId").css("width", "60px").val(workerId);
     const workHoursField = $("<input/>").attr("type", "number").attr("step", "0.25").attr("id", "workHours").
-      css("width", "100px").val(workHours);
+      css("width", "60px").val(workHours);
     const offsetHoursField = $("<input/>").attr("type", "number").attr("step", "0.25").attr("id", "offsetHours").
-      css("width", "100px").val(offsetHours);
+      css("width", "60px").val(offsetHours);
     const offsetDaysField = $("<input/>").attr("type", "number").attr("step", "1").attr("id", "offsetDays").
-      css("width", "100px").val(offsetDays);
+      css("width", "60px").val(offsetDays);
     const includeTodayField = $("<input/>").attr("type", "checkbox").attr("id", "includeToday").
       prop("checked", includeToday);
 
-    const collapseContent = $("<div/>").css("display", "none").
-      append($("<table/>").css("display", "block").
+    const collapseContent = $("<div/>").css({"display": "none", "background": "#f5f5f5"}).
+      append($("<h1/>").css({"font-size": "18px", "float": "left"}).html("Settings:")).
+      append($("<table/>").css("display", "inline").
         append($("<tr/>").
           append($("<td/>").
-            append($("<label/>").attr("for", "userId").css("font-size", "12").html("user id:"))).
+            append($("<label/>").attr("for", "userId").css("font-size", "12").html("<b>user id:</b>"))).
           append($("<td/>").
             append(workerIdField))).
         append($("<tr/>").
           append($("<td/>").
-            append($("<label/>").attr("for", "workHours").css("font-size", "12").html("work hours:"))).
+            append($("<label/>").attr("for", "workHours").css("font-size", "12").html("<b>work hours:</b>"))).
           append($("<td/>").
             append(workHoursField))).
         append($("<tr/>").
           append($("<td/>").
-            append($("<label/>").attr("for", "offsetHours").css("font-size", "12").html("offset hours:"))).
+            append($("<label/>").attr("for", "offsetHours").css("font-size", "12").html("<b>offset hours:</b>"))).
           append($("<td/>").
             append(offsetHoursField))).
         append($("<tr/>").
           append($("<td/>").
-            append($("<label/>").attr("for", "offsetDays").css("font-size", "12").html("offset days:"))).
+            append($("<label/>").attr("for", "offsetDays").css("font-size", "12").html("<b>offset days:</b>"))).
           append($("<td/>").
             append(offsetDaysField))).
         append($("<tr/>").
           append($("<td/>").
-            append($("<label/>").attr("for", "workHours").css("font-size", "12").html("include today:"))).
+            append($("<label/>").attr("for", "workHours").css("font-size", "12").html("<b>include today:</b>"))).
           append($("<td/>").
             append(includeTodayField))));
 
