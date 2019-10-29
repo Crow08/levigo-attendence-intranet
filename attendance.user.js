@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name         attendance duration
-// @namespace    http://tampermonkey.net/
-// @version      0.1
 // @description  More information and general improvements to levigos intranet attendance table!
+// @namespace    attendance
+// @version      0.1
 // @author       Kevin Hertfelder
 // @match        https://intra.levigo.de/mitarbeiter/30tage.php
 // @match        https://intra.levigo.de/mitarbeiter/anwesenheit.php
-// @grant        none
 // @require      https://code.jquery.com/jquery-1.12.4.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.js
+// @downloadURL  https://levigo.de/bitbucket/users/hertfekn/repos/attendance-intranet/raw/attendance.user.js
+// @updateURL    https://levigo.de/bitbucket/users/hertfekn/repos/attendance-intranet/raw/attendance.meta.js
+// @grant        none
 // ==/UserScript==
 
 /* global $ moment */
