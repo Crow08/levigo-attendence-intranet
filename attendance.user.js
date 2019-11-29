@@ -46,6 +46,9 @@
   let average = 0;
   let shouldDuration = 0;
   let divTime = 0;
+  const today = moment().diff(moment([0, 1, 1]), "days") + 31;
+  let firstDay = 999999;
+  let lastDay = 0;
   calculateStatistics();
 
   // Displaying statistics
@@ -116,7 +119,6 @@
     let startTime = null;
     let endTime = null;
     let duration = null;
-    const today = moment().diff(moment([0, 1, 1]), "days") + 31;
 
     timeTags.each((index, element) => {
       if ($(element).parent().css("background-color") === "rgb(244, 80, 80)" ||
@@ -140,9 +142,19 @@
           return true;
         }
 
-        if (includeToday || !$(element).attr("href").includes(today)) {
+
+        var url_string = $(element).attr("href");
+        var url = new URL(url_string, window.location);
+        var day = url.searchParams.get("eeday");
+        if (includeToday || day != today) {
           isDuration += duration.asMilliseconds();
           countDurations++;
+          if(firstDay > day){
+            firstDay = day;
+          }
+          if(lastDay < day){
+            lastDay = day;
+          }
         }
 
         $(element).append(`<br/>${duration.hours()}h ${duration.minutes()}min`);
@@ -161,6 +173,8 @@
       return;
     }
     // Console log statistics.
+    console.log("first day:\t\t" + moment().add(firstDay - today, "days").format("YYYY-MM-DD"));
+    console.log("last day:\t\t" + moment().add(lastDay - today, "days").format("YYYY-MM-DD"));
     console.log(`total time difference:\t${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min`);
     console.log(`average time:\t\t\t${Math.trunc(average.asHours())}h ${average.minutes()}min`);
     console.log(`workdays:\t\t\t${workingDays}`);
