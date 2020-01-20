@@ -2,7 +2,7 @@
 // @name         attendance duration
 // @description  More information and general improvements to levigos intranet attendance table!
 // @namespace    attendance
-// @version      0.2.1
+// @version      0.2.2
 // @author       Kevin Hertfelder
 // @match        https://intra.levigo.de/mitarbeiter/30tage.php
 // @match        https://intra.levigo.de/mitarbeiter/anwesenheit.php
@@ -124,6 +124,14 @@
       if ($(element).parent().css("background-color") === "rgb(244, 80, 80)" ||
         $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(244, 80, 80)") {
 
+        var url_string = $(element).attr("href");
+        var url = new URL(url_string, window.location);
+        var day = url.searchParams.get("eeday");
+
+         /* if(day < minimumDay){
+           return true;
+         } */
+
         workingDays++;
 
         timeArray = $(element).html().split("<br>", (onVacationPlannerPage ? 3 : 2));
@@ -140,12 +148,10 @@
         if (duration.asMilliseconds() === 0) {
           $(element).append("<br/>...");
           return true;
+        }else if (duration < 0) {
+          duration = moment.duration(24, "hours").add(duration);
         }
 
-
-        var url_string = $(element).attr("href");
-        var url = new URL(url_string, window.location);
-        var day = url.searchParams.get("eeday");
         if (includeToday || day != today) {
           isDuration += duration.asMilliseconds();
           countDurations++;
