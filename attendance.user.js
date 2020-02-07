@@ -26,6 +26,7 @@
   let offsetHours = parseFloat(localStorage.getItem("attendance_offsetHours")) || 0;
   let offsetDays = parseFloat(localStorage.getItem("attendance_offsetDays")) || 0;
   let includeToday = localStorage.getItem("attendance_includeToday") === "true" || false;
+  let workingDaysOnly = localStorage.getItem("attendance_workingDaysOnly") === "true" || false;
 
   // Gather time information.
   let timeTags = null;
@@ -42,7 +43,7 @@
   // Calculate working time statistics.
   let isDuration = 0;
   let countDurations = 0;
-  let workingDays = 0;
+  let totalDays = 0;
   let average = 0;
   let shouldDuration = 0;
   let divTime = 0;
@@ -54,7 +55,11 @@
   // Displaying statistics
   let infoBox = null;
   let statistics = null;
-  if (!onVacationPlannerPage) {
+  if (onVacationPlannerPage) {
+    buildBigInfoBox();
+    $("body > center > table > tbody > tr > td").append(infoBox);
+    displayBigStatistics();
+  } else {
     buildInfoBox();
     $("body > form > center").append(infoBox);
     displayStatistics();
@@ -109,7 +114,7 @@
   function calculateStatistics() {
     isDuration = moment.duration(offsetHours, "hours");
     countDurations = offsetDays;
-    workingDays = offsetDays;
+    totalDays = offsetDays;
 
     if (!workerId || !timeTags) {
       return;
@@ -121,18 +126,18 @@
     let duration = null;
 
     timeTags.each((index, element) => {
+      totalDays++;
       if ($(element).parent().css("background-color") === "rgb(244, 80, 80)" ||
-        $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(244, 80, 80)") {
+        $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(244, 80, 80)" ||
+        !workingDaysOnly) {
 
-        var url_string = $(element).attr("href");
-        var url = new URL(url_string, window.location);
-        var day = url.searchParams.get("eeday");
+        let url_string = $(element).attr("href");
+        let url = new URL(url_string, window.location);
+        let day = url.searchParams.get("eeday");
 
          /* if(day < minimumDay){
            return true;
          } */
-
-        workingDays++;
 
         timeArray = $(element).html().split("<br>", (onVacationPlannerPage ? 3 : 2));
         if (timeArray.length < (onVacationPlannerPage ? 3 : 2)) {
@@ -148,17 +153,17 @@
         if (duration.asMilliseconds() === 0) {
           $(element).append("<br/>...");
           return true;
-        }else if (duration < 0) {
+        } else if (duration < 0) {
           duration = moment.duration(24, "hours").add(duration);
         }
 
-        if (includeToday || day != today) {
+        if (includeToday || day !== today) {
           isDuration += duration.asMilliseconds();
           countDurations++;
-          if(firstDay > day){
+          if (firstDay > day) {
             firstDay = day;
           }
-          if(lastDay < day){
+          if (lastDay < day) {
             lastDay = day;
           }
         }
@@ -179,11 +184,11 @@
       return;
     }
     // Console log statistics.
-    console.log("first day:\t\t" + moment().add(firstDay - today, "days").format("YYYY-MM-DD"));
-    console.log("last day:\t\t" + moment().add(lastDay - today, "days").format("YYYY-MM-DD"));
+    console.log(`first day:\t\t${moment().add(firstDay - today, "days").format("YYYY-MM-DD")}`);
+    console.log(`last day:\t\t${moment().add(lastDay - today, "days").format("YYYY-MM-DD")}`);
     console.log(`total time difference:\t${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min`);
     console.log(`average time:\t\t\t${Math.trunc(average.asHours())}h ${average.minutes()}min`);
-    console.log(`workdays:\t\t\t${workingDays}`);
+    console.log(`total days:\t\t\t${totalDays}`);
     console.log(`workdays with times:\t${countDurations}`);
     console.log("total time is:\t\t\t" +
       `${Math.trunc(moment.duration(isDuration).asHours())}h ${moment.duration(isDuration).minutes()}min`);
@@ -198,7 +203,7 @@
     }
     statistics.html(`<b>total time difference:</b><br/>&nbsp;&nbsp;&nbsp;${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min<br/>` +
       `<b>average time:</b><br/>&nbsp;&nbsp;&nbsp;${Math.trunc(average.asHours())}h ${average.minutes()}min<br/>` +
-      `<b>workdays:</b><br/>&nbsp;&nbsp;&nbsp;${workingDays} days<br/>` +
+      `<b>total days:</b><br/>&nbsp;&nbsp;&nbsp;${totalDays} days<br/>` +
       `<b>workdays with times:</b><br/>&nbsp;&nbsp;&nbsp;${countDurations} days<br/>` +
       "<b>total time is:</b><br/>&nbsp;&nbsp;&nbsp;" +
       `${Math.trunc(moment.duration(isDuration).asHours())}h ${moment.duration(isDuration).minutes()}min<br/>` +
@@ -206,16 +211,66 @@
       `${Math.trunc(moment.duration(shouldDuration).asHours())}h ${moment.duration(shouldDuration).minutes()}min<br/>`);
   }
 
+  function displayBigStatistics() {
+    if (!timeTags) {
+      statistics.html("Error: missing information.");
+      return;
+    }
+    const timeIs = `${Math.trunc(moment.duration(isDuration).asHours())}h ${moment.duration(isDuration).minutes()}min`;
+    const timeShould = `${Math.trunc(moment.duration(shouldDuration).asHours())}h ${moment.duration(shouldDuration).minutes()}min`;
+    statistics = $("<table/>").css("border-collapse", "collapse").
+      append($("<tr/>").
+        append($("<td/>").
+          append($("<label/>").html("total time difference:"))).
+        append($("<td/>").
+          append($("<label/>").html("average time:"))).
+        append($("<td/>").
+          append($("<label/>").html("total days:"))).
+        append($("<td/>").
+          append($("<label/>").html("workdays with times:"))).
+        append($("<td/>").
+          append($("<label/>").html("total time is:"))).
+        append($("<td/>").
+          append($("<label/>").html("total time should:"))).
+        append($("<td/>").
+          append($("<label/>").html("first day:"))).
+        append($("<td/>").
+          append($("<label/>").html("last day:")))).
+      append($("<tr/>").
+        append($("<td/>").
+          append($("<div/>").html(`<b>${Math.trunc(divTime.asHours())}h ${divTime.minutes()}min</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${Math.trunc(average.asHours())}h ${average.minutes()}min</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${totalDays} d</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${countDurations} d</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${timeIs}</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${timeShould}</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${moment().add(firstDay - today, "days").format("YYYY-MM-DD")}</b>`))).
+        append($("<td/>").
+          append($("<div/>").html(`<b>${moment().add(lastDay - today, "days").format("YYYY-MM-DD")}`))));
+    statistics.find("td").css({
+      "border": "2px solid black",
+      "padding": "2px 4px"
+    });
+    infoBox.append(statistics);
+  }
+
   // eslint-disable-next-line max-lines-per-function
   function buildInfoBox() {
     infoBox = $("<div/>").css({
       "background": "#dddddd",
       "border": "2px solid black",
+      "min-width": "146px",
       "padding": "4px",
       "position": "absolute",
       "top": "67px",
-      "width": (($("body > form > center").width() - $("body > form > center > table:nth-child(1)").width()) / 2) - 10 + "px",
-      "min-width": "146px"
+      "width":
+      `${(($("body > form > center").width() - $("body > form > center > table:nth-child(1)").width()) / 2) - 10}px`
     });
 
     statistics = $("<div/>").css({
@@ -237,9 +292,11 @@
       css("width", "60px").val(offsetDays);
     const includeTodayField = $("<input/>").attr("type", "checkbox").attr("id", "includeToday").
       prop("checked", includeToday);
+    const workingDaysOnlyField = $("<input/>").attr("type", "checkbox").attr("id", "workingDaysOnly").
+      prop("checked", workingDaysOnly);
 
-    const collapseContent = $("<div/>").css({"display": "none", "background": "#f5f5f5"}).
-      append($("<h1/>").css({"font-size": "18px", "float": "left"}).html("Settings:")).
+    const collapseContent = $("<div/>").css({"background": "#f5f5f5", "display": "none"}).
+      append($("<h1/>").css({"float": "left", "font-size": "18px"}).html("Settings:")).
       append($("<table/>").css("display", "inline").
         append($("<tr/>").
           append($("<td/>").
@@ -265,7 +322,12 @@
           append($("<td/>").
             append($("<label/>").attr("for", "workHours").css("font-size", "12").html("<b>include today:</b>"))).
           append($("<td/>").
-            append(includeTodayField))));
+            append(includeTodayField))).
+        append($("<tr/>").
+          append($("<td/>").
+            append($("<label/>").attr("for", "workingDaysOnly").css("font-size", "12").html("<b>working days only:</b>"))).
+          append($("<td/>").
+            append(workingDaysOnlyField))));
 
     collapseBtn.click((event) => {
       $(event.currentTarget).toggleClass("active");
@@ -276,15 +338,17 @@
       }
     });
 
-    includeTodayField.add(workerIdField).change((event) => {
+    workingDaysOnlyField.add(includeTodayField).add(workerIdField).change(() => {
       workerId = workerIdField.val();
       includeToday = includeTodayField.is(":checked");
+      workingDaysOnly = workingDaysOnlyField.is(":checked");
       localStorage.setItem("attendance_workerId", workerId);
       localStorage.setItem("attendance_includeToday", includeToday);
+      localStorage.setItem("attendance_workingDaysOnly", workingDaysOnly);
       location.reload();
     });
 
-    workHoursField.add(offsetHoursField).add(offsetDaysField).change((event) => {
+    workHoursField.add(offsetHoursField).add(offsetDaysField).change(() => {
       workHours = parseFloat(workHoursField.val());
       offsetHours = parseFloat(offsetHoursField.val());
       offsetDays = parseFloat(offsetDaysField.val());
@@ -307,6 +371,14 @@
 
     infoBox.append(statistics);
     infoBox.append(collapsibleSettings);
+  }
+
+  function buildBigInfoBox() {
+    infoBox = $("<div/>").css({
+      "background": "#ffffff",
+      "display": "inline-block",
+      "margin": "1em 0"
+    });
   }
 
   function addDescriptionTitles() {
