@@ -131,9 +131,9 @@
         $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(244, 80, 80)" ||
         !workingDaysOnly) {
 
-        let url_string = $(element).attr("href");
-        let url = new URL(url_string, window.location);
-        let day = url.searchParams.get("eeday");
+        const urlString = $(element).attr("href");
+        const url = new URL(urlString, window.location);
+        const day = parseInt(url.searchParams.get("eeday"), 10);
 
          /* if(day < minimumDay){
            return true;
