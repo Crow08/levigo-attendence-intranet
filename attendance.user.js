@@ -2,7 +2,7 @@
 // @name         attendance duration
 // @description  More information and general improvements to levigos intranet attendance table!
 // @namespace    attendance
-// @version      0.2.4
+// @version      0.2.5
 // @author       Kevin Hertfelder
 // @match        https://intra.levigo.de/mitarbeiter/30tage.php
 // @match        https://intra.levigo.de/mitarbeiter/anwesenheit.php
@@ -48,7 +48,7 @@
   let shouldDuration = 0;
   let divTime = 0;
   const today = moment().diff(moment([0, 1, 1]), "days") + 31;
-  let firstDay = 999999;
+  let firstDay = 9999999;
   let lastDay = 0;
   calculateStatistics();
 
@@ -127,8 +127,8 @@
 
     timeTags.each((index, element) => {
       totalDays++;
-      if ($(element).parent().css("background-color") === "rgb(244, 80, 80)" ||
-        $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(244, 80, 80)" ||
+      if ($(element).parent().css("background-color") === "rgb(175, 212, 131)" ||
+        $(element).parent().parent().parent().parent().parent().css("background-color") === "rgb(175, 212, 131)" ||
         !workingDaysOnly) {
 
         const urlString = $(element).attr("href");
